@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background:        0 0% 98%;
+    --foreground:        222.2 47.4% 11.2%;
+    --card:              0 0% 100%;
+    --card-foreground:   222.2 47.4% 11.2%;
+    --border:            214.3 31.8% 91.4%;
+    --primary:           222.2 47.4% 11.2%;
+    --primary-foreground:210 40% 98%;
+    --muted:             210 40% 96.1%;
+    --muted-foreground:  215.4 16.3% 46.9%;
+    --accent:            210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive:       0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+    --radius:            0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Linha de tabela com bordas coloridas por status */
+.record-row-error   { @apply bg-red-50 border-l-4 border-red-500; }
+.record-row-warning { @apply bg-yellow-50 border-l-4 border-yellow-400; }
+.record-row-ok      { @apply bg-white border-l-4 border-transparent; }
+.record-row-unknown { @apply bg-red-100 border-l-4 border-red-700; }
+
+/* Campo inválido no inspetor */
+.field-invalid { @apply bg-red-50 text-red-700; }
+.field-warning { @apply bg-yellow-50 text-yellow-700; }
