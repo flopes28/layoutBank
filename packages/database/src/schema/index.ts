@@ -29,7 +29,7 @@ export const banks = pgTable('banks', {
 export const cnabLayouts = pgTable('cnab_layouts', {
   id:         uuid('id').primaryKey().defaultRandom(),
   bankId:     uuid('bank_id').notNull().references(() => banks.id, { onDelete: 'restrict' }),
-  format:     varchar('format', { length: 20 }).notNull(),    // 'CNAB240' | 'CNAB400' | 'CNAB400_REMESSA' | 'CNAB400_RETORNO'
+  format:     varchar('format', { length: 30 }).notNull(),    // 'CNAB240' | 'CNAB400' | 'CNAB400_REMESSA' | 'CNAB400_RETORNO' | 'CNAB240_COBRANCA_REM' | 'CNAB240_COBRANCA_RET'
   version:    varchar('version', { length: 20 }).notNull(),
   name:       varchar('name', { length: 150 }).notNull(),
   lineLength: smallint('line_length').notNull(),               // 240 | 400

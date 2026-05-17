@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 // ---------- tipos ----------
 
@@ -86,9 +86,22 @@ function fieldContent(field: FieldRow): string {
   return '—'
 }
 
+function highlight(text: string, query: string): React.ReactNode {
+  if (!query) return text
+  const idx = text.toLowerCase().indexOf(query.toLowerCase())
+  if (idx === -1) return text
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-yellow-200 text-yellow-900 rounded-sm px-0.5">{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  )
+}
+
 // ---------- componentes ----------
 
-function FieldTable({ fields }: { fields: FieldRow[] }) {
+function FieldTable({ fields, filter }: { fields: FieldRow[]; filter: string }) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full border-collapse text-sm">
@@ -105,52 +118,60 @@ function FieldTable({ fields }: { fields: FieldRow[] }) {
           </tr>
         </thead>
         <tbody>
-          {fields.map((field, i) => (
-            <tr
-              key={field.name + field.startPosition}
-              className={[
-                'transition-colors',
-                field.isFiller
-                  ? 'bg-gray-50 text-gray-400'
-                  : i % 2 === 0 ? 'bg-white' : 'bg-gray-50/60',
-                'hover:bg-blue-50/40',
-              ].join(' ')}
-            >
-              <td className="border border-gray-200 px-3 py-2 text-center text-gray-400 tabular-nums">
-                {field.seq}
-              </td>
-              <td className="border border-gray-200 px-3 py-2 font-mono text-xs font-medium text-gray-700">
-                {field.name}
-              </td>
-              <td className="border border-gray-200 px-3 py-2 text-gray-800">
-                {field.label}
-              </td>
-              <td className="border border-gray-200 px-3 py-2 text-center tabular-nums text-gray-600">
-                {field.startPosition}
-              </td>
-              <td className="border border-gray-200 px-3 py-2 text-center tabular-nums text-gray-600">
-                {field.endPosition}
-              </td>
-              <td className="border border-gray-200 px-3 py-2 text-center tabular-nums font-medium text-gray-700">
-                {field.length}
-              </td>
-              <td className="border border-gray-200 px-3 py-2 text-center">
-                <span className={[
-                  'inline-block rounded px-1.5 py-0.5 text-xs font-medium',
-                  field.dataType === 'MONETARY' ? 'bg-green-50 text-green-700' :
-                  field.dataType === 'DATE'     ? 'bg-purple-50 text-purple-700' :
-                  field.dataType === 'NUM'      ? 'bg-orange-50 text-orange-700' :
-                  field.dataType === 'ALPHA'    ? 'bg-blue-50 text-blue-700' :
-                  'bg-gray-100 text-gray-600',
-                ].join(' ')}>
-                  {DATA_TYPE_LABEL[field.dataType] ?? field.dataType}
-                </span>
-              </td>
-              <td className="border border-gray-200 px-3 py-2 text-xs text-gray-500">
-                {fieldContent(field)}
+          {fields.length === 0 ? (
+            <tr>
+              <td colSpan={8} className="border border-gray-200 px-4 py-8 text-center text-sm text-gray-400">
+                Nenhum campo encontrado para &ldquo;{filter}&rdquo;
               </td>
             </tr>
-          ))}
+          ) : (
+            fields.map((field, i) => (
+              <tr
+                key={field.name + field.startPosition}
+                className={[
+                  'transition-colors',
+                  field.isFiller
+                    ? 'bg-gray-50 text-gray-400'
+                    : i % 2 === 0 ? 'bg-white' : 'bg-gray-50/60',
+                  'hover:bg-blue-50/40',
+                ].join(' ')}
+              >
+                <td className="border border-gray-200 px-3 py-2 text-center text-gray-400 tabular-nums">
+                  {field.seq}
+                </td>
+                <td className="border border-gray-200 px-3 py-2 font-mono text-xs font-medium text-gray-700">
+                  {highlight(field.name, filter)}
+                </td>
+                <td className="border border-gray-200 px-3 py-2 text-gray-800">
+                  {highlight(field.label, filter)}
+                </td>
+                <td className="border border-gray-200 px-3 py-2 text-center tabular-nums text-gray-600">
+                  {field.startPosition}
+                </td>
+                <td className="border border-gray-200 px-3 py-2 text-center tabular-nums text-gray-600">
+                  {field.endPosition}
+                </td>
+                <td className="border border-gray-200 px-3 py-2 text-center tabular-nums font-medium text-gray-700">
+                  {field.length}
+                </td>
+                <td className="border border-gray-200 px-3 py-2 text-center">
+                  <span className={[
+                    'inline-block rounded px-1.5 py-0.5 text-xs font-medium',
+                    field.dataType === 'MONETARY' ? 'bg-green-50 text-green-700' :
+                    field.dataType === 'DATE'     ? 'bg-purple-50 text-purple-700' :
+                    field.dataType === 'NUM'      ? 'bg-orange-50 text-orange-700' :
+                    field.dataType === 'ALPHA'    ? 'bg-blue-50 text-blue-700' :
+                    'bg-gray-100 text-gray-600',
+                  ].join(' ')}>
+                    {DATA_TYPE_LABEL[field.dataType] ?? field.dataType}
+                  </span>
+                </td>
+                <td className="border border-gray-200 px-3 py-2 text-xs text-gray-500">
+                  {highlight(fieldContent(field), filter)}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
         <tfoot>
           <tr className="bg-gray-100">
@@ -179,6 +200,10 @@ export default function LayoutsPage() {
   const [activeRt, setActiveRt]     = useState<string | null>(null)
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState<string | null>(null)
+  const [fieldFilter, setFieldFilter] = useState('')
+
+  // Limpa filtro ao trocar de layout ou tipo de registro
+  useEffect(() => { setFieldFilter('') }, [selectedId, activeRt])
 
   // Carrega lista de layouts
   useEffect(() => {
@@ -208,6 +233,19 @@ export default function LayoutsPage() {
   }, [selectedId])
 
   const currentRt = detail?.recordTypes.find(rt => rt.id === activeRt) ?? null
+
+  const filteredFields = useMemo(() => {
+    if (!currentRt) return []
+    const q = fieldFilter.trim().toLowerCase()
+    if (!q) return currentRt.fields
+    return currentRt.fields.filter(f =>
+      f.name.toLowerCase().includes(q) ||
+      f.label.toLowerCase().includes(q) ||
+      (f.description ?? '').toLowerCase().includes(q) ||
+      String(f.startPosition).includes(q) ||
+      String(f.endPosition).includes(q)
+    )
+  }, [currentRt, fieldFilter])
 
   // Agrupa layouts por banco
   const byBank = layouts.reduce<Record<string, { bankName: string; layouts: LayoutSummary[] }>>(
@@ -336,25 +374,56 @@ export default function LayoutsPage() {
               {currentRt && (
                 <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                   {/* Cabeçalho do tipo de registro */}
-                  <div className="border-b border-gray-200 bg-gray-50 px-5 py-3 flex items-center justify-between">
-                    <div>
-                      <span className={[
-                        'rounded border px-2 py-0.5 text-xs font-medium mr-2',
-                        CATEGORY_COLOR[currentRt.category] ?? 'bg-gray-100 text-gray-600 border-gray-200',
-                      ].join(' ')}>
-                        {CATEGORY_LABEL[currentRt.category] ?? currentRt.category}
-                      </span>
-                      <span className="text-sm font-semibold text-gray-800">{currentRt.description}</span>
-                      <span className="ml-2 text-xs text-gray-400">
-                        — identificado pela posição {currentRt.identifier.start} = &ldquo;{currentRt.identifier.value}&rdquo;
+                  <div className="border-b border-gray-200 bg-gray-50 px-5 py-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className={[
+                          'rounded border px-2 py-0.5 text-xs font-medium mr-2',
+                          CATEGORY_COLOR[currentRt.category] ?? 'bg-gray-100 text-gray-600 border-gray-200',
+                        ].join(' ')}>
+                          {CATEGORY_LABEL[currentRt.category] ?? currentRt.category}
+                        </span>
+                        <span className="text-sm font-semibold text-gray-800">{currentRt.description}</span>
+                        <span className="ml-2 text-xs text-gray-400">
+                          — identificado pela posição {currentRt.identifier.start} = &ldquo;{currentRt.identifier.value}&rdquo;
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {fieldFilter
+                          ? `${filteredFields.length} de ${currentRt.fields.length} campos`
+                          : `${currentRt.fields.length} campos`}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-400">
-                      {currentRt.fields.length} campos
-                    </span>
+
+                    {/* Barra de busca */}
+                    <div className="relative">
+                      <svg
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round"
+                          d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        value={fieldFilter}
+                        onChange={e => setFieldFilter(e.target.value)}
+                        placeholder="Buscar campo por nome, descrição ou posição..."
+                        className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-9 text-sm text-gray-800 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                      />
+                      {fieldFilter && (
+                        <button
+                          onClick={() => setFieldFilter('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          aria-label="Limpar filtro"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <FieldTable fields={currentRt.fields} />
+                  <FieldTable fields={filteredFields} filter={fieldFilter.trim()} />
                 </div>
               )}
             </>

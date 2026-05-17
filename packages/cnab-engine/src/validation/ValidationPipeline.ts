@@ -41,7 +41,8 @@ export function validateField(rawField: RawField): ParsedField {
     } else if (def.dataType === 'MONETARY') {
       errors.push(...validateMonetary(rawValue, def.label))
     } else if (def.dataType === 'DATE') {
-      errors.push(...validateDate(rawValue, def.label, def.formatMask ?? 'DDMMAAAA', def.isRequired))
+      const dateMask = def.formatMask ?? (def.length === 6 ? 'DDMMAA' : 'DDMMAAAA')
+      errors.push(...validateDate(rawValue, def.label, dateMask, def.isRequired))
     }
 
     // 4. Allowed values
@@ -70,7 +71,7 @@ export function validateField(rawField: RawField): ParsedField {
     startPosition: def.startPosition,
     endPosition:   def.endPosition,
     rawValue,
-    parsedValue:   convertValue(rawValue, def.dataType, def.formatMask, def.decimalPlaces),
+    parsedValue:   convertValue(rawValue, def.dataType, def.formatMask ?? (def.dataType === 'DATE' && def.length === 6 ? 'DDMMAA' : undefined), def.decimalPlaces),
     dataType:      def.dataType as any,
     isRequired:    def.isRequired,
     isFiller:      def.isFiller,

@@ -1,6 +1,6 @@
 // Tipos centrais do domínio CNAB compartilhados entre engine, database e web
 
-export type CnabFormat = 'CNAB240' | 'CNAB400' | 'CNAB400_REMESSA' | 'CNAB400_RETORNO'
+export type CnabFormat = 'CNAB240' | 'CNAB400' | 'CNAB400_REMESSA' | 'CNAB400_RETORNO' | 'CNAB240_COBRANCA_REM' | 'CNAB240_COBRANCA_RET'
 export type RecordCategory = 'HEADER' | 'DETAIL' | 'TRAILER'
 export type RecordStatus = 'OK' | 'WARNING' | 'ERROR'
 export type FieldDataType = 'ALPHA' | 'NUM' | 'DATE' | 'MONETARY' | 'ALPHANUM' | 'CONSTANT'

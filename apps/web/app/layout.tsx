@@ -24,16 +24,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <nav className="flex items-center gap-1">
               <Link
+                href="/"
+                className="px-4 py-5 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition-colors"
+              >
+                Início
+              </Link>
+              <Link
                 href="/analisar"
                 className="px-4 py-5 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition-colors"
               >
                 Analisar Arquivo
-              </Link>
-              <Link
-                href="/#retorno"
-                className="px-4 py-5 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition-colors"
-              >
-                Simular Retorno
               </Link>
               <Link
                 href="/layouts"

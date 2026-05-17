@@ -25,7 +25,7 @@ export class CnabEngine {
 
     const layout = options.layoutId
       ? await this.provider.getById(options.layoutId)
-      : await this.provider.identify(lines[0].content)
+      : await this.provider.identify(lines[0].content, lines[1]?.content)
 
     if (!layout) {
       throw new Error(

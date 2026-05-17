@@ -2,7 +2,7 @@
 // O engine é agnóstico ao banco de dados — recebe LayoutDefinition
 // de qualquer fonte via LayoutProvider.
 
-export type CnabFormat = 'CNAB240' | 'CNAB400' | 'CNAB400_REMESSA' | 'CNAB400_RETORNO'
+export type CnabFormat = 'CNAB240' | 'CNAB400' | 'CNAB400_REMESSA' | 'CNAB400_RETORNO' | 'CNAB240_COBRANCA_REM' | 'CNAB240_COBRANCA_RET'
 export type RecordCategory = 'HEADER' | 'DETAIL' | 'TRAILER'
 export type FieldDataType = 'ALPHA' | 'NUM' | 'DATE' | 'MONETARY' | 'ALPHANUM' | 'CONSTANT'
 
@@ -63,7 +63,7 @@ export interface LayoutDefinition {
 // Interface que o engine usa para obter layouts.
 // Implementada fora do engine (ex: DatabaseLayoutProvider em apps/web)
 export interface LayoutProvider {
-  identify(fileContent: string): Promise<LayoutDefinition | null>
+  identify(firstLine: string, secondLine?: string): Promise<LayoutDefinition | null>
   getById(layoutId: string): Promise<LayoutDefinition | null>
 }
 

@@ -33,8 +33,8 @@ const RETORNO_BANKS: BankEntry[] = [
     name:      'Bradesco',
     code:      '237',
     formats:   ['CNAB 400 – Cobrança'],
-    href:      null,
-    available: false,
+    href:      '/simular-retorno-bradesco',
+    available: true,
     color:     '#CC092F',
   },
   {

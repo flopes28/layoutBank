@@ -4,7 +4,7 @@ import type { LayoutWithRelations } from '@layoutbank/database'
 import type { CnabFormat } from '@layoutbank/shared-types'
 
 export class DatabaseLayoutProvider implements LayoutProvider {
-  async identify(firstLine: string): Promise<LayoutDefinition | null> {
+  async identify(firstLine: string, secondLine?: string): Promise<LayoutDefinition | null> {
     const lineLength = firstLine.length
     if (lineLength !== 240 && lineLength !== 400) return null
 
@@ -14,7 +14,16 @@ export class DatabaseLayoutProvider implements LayoutProvider {
     if (lineLength === 240) {
       // CNAB 240: código do banco nas posições 1-3 (1-indexed)
       bankCode = firstLine.substring(0, 3).trim()
-      formatName = 'CNAB240'
+      // Posições 10-11 do Header de Lote (segunda linha, índices 9-10) contêm o código de serviço:
+      // '01' = Cobrança Bancária, '20' = Pagamento de Títulos
+      const serviceCode = secondLine ? secondLine.substring(9, 11) : '20'
+      if (serviceCode === '01') {
+        // Posição 143 do Header de Arquivo (índice 142) distingue Remessa ('1') de Retorno ('2')
+        const remRet = firstLine.charAt(142)
+        formatName = remRet === '2' ? 'CNAB240_COBRANCA_RET' : 'CNAB240_COBRANCA_REM'
+      } else {
+        formatName = 'CNAB240'
+      }
     } else {
       // CNAB 400: código do banco nas posições 77-79 (1-indexed)
       bankCode = firstLine.substring(76, 79).trim()
